@@ -10,13 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nivo/bar": "^0.87.0",
+    "@nivo/pie": "^0.87.0",
     "@phosphor-icons/react": "^2.1.6",
     "@radix-ui/react-dialog": "^1.1.1",
     "@react-input/mask": "^1.2.5",
     "@react-input/number-format": "^1.0.27",
+    "axios": "^1.7.2",
+    "dayjs": "^1.11.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.11"
+    "styled-components": "^6.1.11",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
