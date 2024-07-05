@@ -1,29 +1,15 @@
 import { ResponsivePie } from '@nivo/pie';
 import { useMemo } from 'react';
 
+import { Expense } from '../../services/api-types';
 import { theme } from '../../styles/theme';
 import { formatCurrency } from '../../utils/format-currency';
 
-const apiData = [
-  {
-    _id: '1',
-    title: 'Alimentação',
-    amount: 30000,
-    color: '#ff33bb',
-  },
-  {
-    _id: '2',
-    title: 'Compras',
-    amount: 15000,
-    color: '#ff3b',
-  },
-  {
-    _id: '3',
-    title: 'Streaming',
-    amount: 6000,
-    color: '#f33b',
-  },
-];
+export type CategoryProps = {
+  id: string;
+  title: string;
+  color: string;
+};
 
 type ChartData = {
   id: string;
@@ -33,21 +19,40 @@ type ChartData = {
   color: string;
 };
 
-export function CategoriesPieChart() {
-  const data = useMemo<ChartData[]>(() => {
-    const charData: ChartData[] = apiData.map((item) => ({
-      id: item.title,
-      label: item.title,
-      externalId: item._id,
-      value: item.amount,
-      color: item.color,
-    }));
+type CategoriesPieChartProps = {
+  onClick: (category: CategoryProps) => void;
+  expenses?: Expense[];
+};
 
-    return charData;
-  }, []);
+export function CategoriesPieChart({
+  onClick,
+  expenses,
+}: CategoriesPieChartProps) {
+  const data = useMemo<ChartData[]>(() => {
+    if (expenses?.length) {
+      const chartData: ChartData[] = expenses.map((item) => ({
+        id: item.title,
+        label: item.title,
+        externalId: item._id,
+        value: item.amount,
+        color: item.color,
+      }));
+
+      return chartData;
+    }
+
+    return [];
+  }, [expenses]);
 
   return (
     <ResponsivePie
+      onClick={({ data }) =>
+        onClick({
+          id: data.externalId,
+          title: data.id,
+          color: data.color,
+        })
+      }
       data={data}
       enableArcLabels={false}
       enableArcLinkLabels={false}
@@ -57,7 +62,7 @@ export function CategoriesPieChart() {
       theme={{
         text: {
           fontFamily: 'Lexend',
-          fontSize: '10',
+          fontSize: 10,
         },
         tooltip: {
           container: {
