@@ -7,7 +7,7 @@ import {
   Dashboard,
   DashboardFilters,
   Transaction,
-  TransactionFilter,
+  TransactionsFilter,
 } from './api-types';
 
 export class APIService {
@@ -48,7 +48,7 @@ export class APIService {
     categoryId,
     beginDate,
     endDate,
-  }: TransactionFilter): Promise<Transaction[]> {
+  }: TransactionsFilter): Promise<Transaction[]> {
     const { data } = await APIService.client.get<Transaction[]>(
       '/transactions',
       {

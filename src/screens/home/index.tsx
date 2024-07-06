@@ -51,7 +51,8 @@ export function Home() {
 
   useEffect(() => {
     const { beginDate, endDate } = transactionFilterForm.getValues();
-    fetchDashboard(beginDate, endDate);
+
+    fetchDashboard({ beginDate, endDate });
     fetchTransactions(transactionFilterForm.getValues());
   }, [fetchTransactions, transactionFilterForm, fetchDashboard]);
 

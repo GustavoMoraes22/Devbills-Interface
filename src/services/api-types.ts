@@ -17,7 +17,7 @@ export type CreateTransaction = {
   date: string;
 };
 
-export type TransactionFilter = {
+export type TransactionsFilter = {
   title?: string;
   categoryId?: string;
   beginDate: string;
@@ -28,7 +28,7 @@ export type Transaction = {
   _id: string;
   title: string;
   amount: number;
-  type: 'expense' | 'income';
+  type: 'income' | 'expense';
   date: Date;
   category: Category;
 };
