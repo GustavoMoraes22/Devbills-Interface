@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { X } from '@phosphor-icons/react';
 import { InputMask } from '@react-input/mask';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
@@ -19,7 +20,10 @@ import { Title } from '../../components/title';
 import { Transaction } from '../../components/transaction';
 import { useFetchAPI } from '../../hooks/useFetchAPI';
 import { transactionsFilterSchema } from '../../validators/schemas';
-import { TransactionsFilterData } from '../../validators/types';
+import {
+  FinancialEvolutionFilterData,
+  TransactionsFilterData,
+} from '../../validators/types';
 import {
   Header,
   Main,
@@ -33,6 +37,7 @@ import {
   Aside,
   SearchTransaction,
   TransactionGroup,
+  CategoryBadge,
 } from './styles';
 
 export function Home() {
@@ -46,15 +51,34 @@ export function Home() {
     resolver: zodResolver(transactionsFilterSchema),
   });
 
-  const { transactions, dashboard, fetchTransactions, fetchDashboard } =
-    useFetchAPI();
+  const financialEvoltionFilterForm = useForm<FinancialEvolutionFilterData>({
+    defaultValues: {
+      year: dayjs().get('year').toString(),
+    },
+  });
+
+  const {
+    transactions,
+    dashboard,
+    fetchTransactions,
+    fetchDashboard,
+    fetchFinancialEvolution,
+    financialEvolution,
+  } = useFetchAPI();
 
   useEffect(() => {
     const { beginDate, endDate } = transactionFilterForm.getValues();
 
     fetchDashboard({ beginDate, endDate });
     fetchTransactions(transactionFilterForm.getValues());
-  }, [fetchTransactions, transactionFilterForm, fetchDashboard]);
+    fetchFinancialEvolution(financialEvoltionFilterForm.getValues());
+  }, [
+    fetchTransactions,
+    transactionFilterForm,
+    fetchDashboard,
+    fetchFinancialEvolution,
+    financialEvoltionFilterForm,
+  ]);
 
   const [selectedCategory, SetselectedCategory] =
     useState<CategoryProps | null>(null);
@@ -69,10 +93,11 @@ export function Home() {
     [transactionFilterForm, fetchTransactions],
   );
 
-  const handleDeselectCategory = useCallback(() => {
+  const handleDeselectCategory = useCallback(async () => {
     SetselectedCategory(null);
     transactionFilterForm.setValue('categoryId', '');
-  }, [transactionFilterForm]);
+    await fetchTransactions(transactionFilterForm.getValues());
+  }, [transactionFilterForm, fetchTransactions]);
 
   const onSubmitTransactions = useCallback(
     async (data: TransactionsFilterData) => {
@@ -89,6 +114,13 @@ export function Home() {
       await fetchTransactions({ beginDate, endDate });
     },
     [fetchDashboard, fetchTransactions],
+  );
+
+  const onSubmitFinancialEvolution = useCallback(
+    async (data: FinancialEvolutionFilterData) => {
+      await fetchFinancialEvolution(data);
+    },
+    [fetchFinancialEvolution],
   );
 
   return (
@@ -148,6 +180,15 @@ export function Home() {
                 title="Gastos"
                 subtitle="Despesas por categorias no período"
               />
+              {selectedCategory && (
+                <CategoryBadge
+                  $color={selectedCategory.color}
+                  onClick={handleDeselectCategory}
+                >
+                  <X />
+                  {selectedCategory.title.toUpperCase()}
+                </CategoryBadge>
+              )}
             </header>
             <ChartContent>
               <CategoriesPieChart
@@ -165,17 +206,24 @@ export function Home() {
               <ChartAction>
                 <InputMask
                   component={Input}
-                  mask="dd/mm/aaaa"
+                  mask="aaaa"
                   replacement={{ a: /\d/ }}
                   variant="black"
                   label="Ano"
                   placeholder="aaaa"
+                  {...financialEvoltionFilterForm.register('year')}
                 />
-                <ButtonIcon />
+                <ButtonIcon
+                  onClick={financialEvoltionFilterForm.handleSubmit(
+                    onSubmitFinancialEvolution,
+                  )}
+                />
               </ChartAction>
             </header>
             <ChartContent>
-              <FinancialEvolutionBarChart />
+              <FinancialEvolutionBarChart
+                financialEvolution={financialEvolution}
+              />
             </ChartContent>
           </ChartContainer>
         </Section>
